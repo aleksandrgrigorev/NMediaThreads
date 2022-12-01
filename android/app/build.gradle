@@ -59,6 +59,7 @@ dependencies {
     def okhttp_version = "4.10.0"
     def play_services_base_version = "18.1.0"
 
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.core:core-ktx:$core_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
