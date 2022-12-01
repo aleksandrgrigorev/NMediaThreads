@@ -1,10 +1,13 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
-import ru.netology.nmedia.repository.*
+import ru.netology.nmedia.repository.PostRepository
+import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
 import kotlin.concurrent.thread
@@ -71,7 +74,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        thread { repository.likeById(id) }
+        thread {
+            val likePost = repository.likeById(id)
+            val unlikePost = repository.unlikeById(id)
+            _data.postValue(
+                _data.value?.copy(
+                    posts = _data.value?.posts.orEmpty()
+                        .map {
+                            if (it.id == id) {
+                                if (!it.likedByMe) likePost else unlikePost
+                            } else it
+                        }
+                )
+            )
+        }
     }
 
     fun removeById(id: Long) {
