@@ -10,15 +10,16 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
-import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
     content = "",
     author = "",
+    authorAvatar = "",
     likedByMe = false,
     likes = 0,
-    published = ""
+    published = "",
+    attachment = null,
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
