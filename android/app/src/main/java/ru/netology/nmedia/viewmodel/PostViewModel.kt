@@ -1,10 +1,10 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
@@ -32,6 +32,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+    private val _error = SingleLiveEvent<Throwable>()
+    val error: LiveData<Throwable>
+        get() = _error
 
     init {
         loadPosts()
@@ -46,6 +49,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(e: Exception) {
                 _data.postValue(FeedModel(error = true))
+                _error.value = Exception("Error: $e")
             }
         })
     }
@@ -58,7 +62,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 override fun onError(e: Exception) {
-                    Log.e("Error", "post ${it.id} couldn't be saved: $e")
+                    _error.value = Exception("Error: $e")
                 }
             })
         }
@@ -77,9 +81,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(e: Exception) {
+                _error.value = Exception("Error: $e")
                 _data.postValue(_data.value?.copy(posts = old))
             }
-
         })
     }
 
@@ -109,7 +113,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(e: Exception) {
-                Log.e("Error", "post $id couldn't be liked: $e")
+                _error.value = Exception("Error: $e")
             }
         })
     }
@@ -128,7 +132,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(e: Exception) {
-                Log.e("Error", "post $id couldn't be unliked: $e")
+                _error.value = Exception("Error: $e")
             }
         })
     }
