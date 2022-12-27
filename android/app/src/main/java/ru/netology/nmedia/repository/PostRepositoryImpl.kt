@@ -1,6 +1,8 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.map
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
@@ -14,7 +16,9 @@ import java.io.IOException
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
-    override val data = dao.getAll().map { it.toDto() }
+    override val data = dao.getAll()
+        .map { it.toDto() }
+        .flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
         try {
@@ -89,7 +93,6 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
-
             val body = response.body() ?: throw ApiException(response.code(), response.message())
             dao.insert(PostEntity.fromDto(body))
         } catch (e: IOException) {
