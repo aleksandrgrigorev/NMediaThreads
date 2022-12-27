@@ -1,5 +1,6 @@
 package ru.netology.nmedia.controller
 
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.service.PostService
@@ -8,10 +9,15 @@ import ru.netology.nmedia.service.PostService
 @RequestMapping("/api/posts", "/api/slow/posts")
 class PostController(private val service: PostService) {
     @GetMapping
+    // TODO: uncomment for 500 status code generation
+    // @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun getAll() = service.getAll()
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = service.getById(id)
+
+    @GetMapping("/{id}/newer")
+    fun getNewer(@PathVariable id: Long) = service.getNewer(id)
 
     @PostMapping
     fun save(@RequestBody dto: Post) = service.save(dto)
@@ -24,4 +30,5 @@ class PostController(private val service: PostService) {
 
     @DeleteMapping("/{id}/likes")
     fun unlikeById(@PathVariable id: Long) = service.unlikeById(id)
+
 }

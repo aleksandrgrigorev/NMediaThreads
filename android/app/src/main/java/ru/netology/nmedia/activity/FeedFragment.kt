@@ -87,6 +87,10 @@ class FeedFragment : Fragment() {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            println(it)
+        }
+
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshPosts()
         }

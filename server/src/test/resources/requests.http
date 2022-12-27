@@ -16,7 +16,7 @@ Content-Type: application/json
 
 {
   "id": 0,
-  "author": "Netology",
+  "author": "Student",
   "authorAvatar": "netology.jpg",
   "content": "New Post",
   "published": 0,
@@ -57,7 +57,7 @@ Content-Type: application/json
 
 {
   "id": 6,
-  "author": "Netology",
+  "author": "Student",
   "authorAvatar": "netology.jpg",
   "content": "New Post (UPDATED)",
   "published": 0,

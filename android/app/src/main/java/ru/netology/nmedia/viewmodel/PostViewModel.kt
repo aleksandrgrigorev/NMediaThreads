@@ -3,6 +3,7 @@ package ru.netology.nmedia.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
@@ -26,11 +27,18 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     // упрощённый вариант
-    private val repository: PostRepository = PostRepositoryImpl(AppDb.getInstance(application).postDao())
+    private val repository: PostRepository =
+        PostRepositoryImpl(AppDb.getInstance(application).postDao())
     private val _dataState = MutableLiveData(FeedModelState())
-    val data : LiveData<FeedModel> = repository.data
+    val data: LiveData<FeedModel> = repository.data
         .map { FeedModel(it, it.isEmpty()) }
         .asLiveData(Dispatchers.Default)
+
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0)
+            .catch { e -> _dataState.postValue(FeedModelState(error = true)) }
+            .asLiveData(Dispatchers.Default)
+    }
 
     val dataState: LiveData<FeedModelState>
         get() = _dataState
@@ -47,13 +55,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadPosts() = viewModelScope.launch {
-            try {
-                _dataState.value = FeedModelState(loading = true)
-                repository.getAll()
-                _dataState.value = FeedModelState()
-            } catch (e: Exception) {
-                _dataState.value = FeedModelState(error = true)
-            }
+        try {
+            _dataState.value = FeedModelState(loading = true)
+            repository.getAll()
+            _dataState.value = FeedModelState()
+        } catch (e: Exception) {
+            _dataState.value = FeedModelState(error = true)
+        }
     }
 
     fun refreshPosts() = viewModelScope.launch {
@@ -86,7 +94,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun unlikeById(id: Long) = viewModelScope.launch  {
+    fun unlikeById(id: Long) = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(refreshing = true)
             repository.unlikeById(id)
