@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
@@ -65,6 +65,15 @@ class FeedFragment : Fragment() {
             }
         })
         binding.list.adapter = adapter
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if (positionStart == 0) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
+        })
+
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
 
@@ -89,6 +98,14 @@ class FeedFragment : Fragment() {
 
         viewModel.newerCount.observe(viewLifecycleOwner) {
             println(it)
+            if(it >= 1) {
+                binding.getNewer.isVisible = true
+                binding.getNewer.text = getString(R.string.newer_posts, it.toString())
+                binding.getNewer.setOnClickListener {
+                    viewModel.updateWithNewPosts()
+                    binding.getNewer.isVisible = false
+                }
+            }
         }
 
         binding.swiperefresh.setOnRefreshListener {

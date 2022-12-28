@@ -17,7 +17,7 @@ import java.io.IOException
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
-    override val data = dao.getAll()
+    override val data = dao.getShown()
         .map { it.toDto() }
         .flowOn(Dispatchers.Default)
 
@@ -38,6 +38,11 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
+    override suspend fun updateWithNewPosts() {
+        val newPosts = dao.getNew().map { it.copy(show = true) }
+        dao.insert(newPosts)
+    }
+
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000)
@@ -46,7 +51,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 throw ApiException(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiException(response.code(), response.message())
-            dao.insert(body.toEntity())
+            dao.insert(body.toEntity(false))
             emit(body.size)
         }
     }

@@ -24,4 +24,9 @@
         <item name="android:minHeight">@dimen/icon_button_min_size</item>
     </style>
 
+    <style name="ShapeAppearanceOverlay.MyApp.MaterialCardView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
 </resources>
