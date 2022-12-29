@@ -64,10 +64,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateWithNewPosts() = viewModelScope.launch(Dispatchers.IO) {
+    fun showPosts() = viewModelScope.launch(Dispatchers.IO) {
         try {
             _dataState.postValue(FeedModelState(loading = true))
-            repository.updateWithNewPosts()
+            repository.showPosts()
             _dataState.postValue(FeedModelState())
         } catch (e: Exception) {
             _dataState.postValue(FeedModelState(error = true))

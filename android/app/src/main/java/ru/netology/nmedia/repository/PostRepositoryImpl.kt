@@ -38,9 +38,8 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun updateWithNewPosts() {
-        val newPosts = dao.getNew().map { it.copy(show = true) }
-        dao.insert(newPosts)
+    override suspend fun showPosts() {
+        dao.showPosts()
     }
 
     override fun getNewerCount(id: Long): Flow<Int> = flow {
