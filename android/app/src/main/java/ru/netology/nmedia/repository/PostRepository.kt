@@ -6,7 +6,7 @@ import ru.netology.nmedia.dto.Post
 interface PostRepository {
     val data: Flow<List<Post>>
     suspend fun getAll()
-    suspend fun showPosts()
+    suspend fun showNewPosts()
     suspend fun save(post: Post)
     suspend fun removeById(id: Long)
     suspend fun likeById(id: Long)

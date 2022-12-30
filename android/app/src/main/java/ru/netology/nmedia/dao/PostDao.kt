@@ -13,7 +13,7 @@ interface PostDao {
     fun getShown(): Flow<List<PostEntity>>
 
     @Query("UPDATE PostEntity SET show = 1 WHERE show = 0")
-    fun showPosts()
+    fun showNewPosts()
 
     @Query("SELECT COUNT(*) == 0 FROM PostEntity")
     suspend fun isEmpty(): Boolean

@@ -102,7 +102,7 @@ class FeedFragment : Fragment() {
                 binding.getNewer.isVisible = true
                 binding.getNewer.text = getString(R.string.newer_posts, it.toString())
                 binding.getNewer.setOnClickListener {
-                    viewModel.showPosts()
+                    viewModel.showNewPosts()
                     binding.getNewer.isVisible = false
                 }
             }

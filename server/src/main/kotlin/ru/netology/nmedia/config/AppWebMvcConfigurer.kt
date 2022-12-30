@@ -1,14 +1,16 @@
 package ru.netology.nmedia.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 
 @Configuration
-class AppWebMvcConfigurer : WebMvcConfigurer {
+class AppWebMvcConfigurer(@Value("\${app.media-location}") private val mediaLocation: String) : WebMvcConfigurer {
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(object : HandlerInterceptor {
             override fun preHandle(
@@ -19,12 +21,18 @@ class AppWebMvcConfigurer : WebMvcConfigurer {
                 if (
                     request.requestURI.startsWith("/api/slow") ||
                     request.requestURI.startsWith("/avatars") ||
-                    request.requestURI.startsWith("/images")
+                    request.requestURI.startsWith("/media")
                 ) {
                     Thread.sleep(5_000)
                 }
                 return true
             }
         })
+    }
+
+    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        registry
+            .addResourceHandler("/**")
+            .addResourceLocations(mediaLocation)
     }
 }

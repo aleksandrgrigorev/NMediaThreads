@@ -150,17 +150,48 @@ GET http://localhost:9999/avatars/sber.jpg
 > {%
 client.test("Request executed successfully", function() {
   client.assert(response.status === 200, "Response status is not 200");
-  client.assert(response.contentType.mimeType === 'image/jpeg', "Invalid mime type");
+  client.assert(response.contentType.mimeType === "image/jpeg", "Invalid mime type");
 });
 %}
 
 ### Получение изображения
 
-GET http://localhost:9999/images/sbercard.jpg
+GET http://localhost:9999/media/sbercard.jpg
 
 > {%
 client.test("Request executed successfully", function() {
   client.assert(response.status === 200, "Response status is not 200");
-  client.assert(response.contentType.mimeType === 'image/jpeg', "Invalid mime type");
+  client.assert(response.contentType.mimeType === "image/jpeg", "Invalid mime type");
+});
+%}
+
+### Загрузка изображения
+
+POST http://localhost:9999/api/media
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="image.png"
+
+< ./image.png
+--WebAppBoundary--
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
+  client.assert(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.(png|jpg)/.test(response.body.id), "Invalid mime type");
+  client.assert(response.body.id !== undefined, "Id is undefined")
+  client.global.set("mediaId", response.body.id)
+});
+%}
+
+###
+GET http://localhost:9999/media/{{mediaId}}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "image/png", "Invalid mime type");
 });
 %}

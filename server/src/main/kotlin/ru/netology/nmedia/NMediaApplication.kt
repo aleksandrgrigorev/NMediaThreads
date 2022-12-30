@@ -1,10 +1,12 @@
 package ru.netology.nmedia
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.util.ResourceUtils
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Comment
 import ru.netology.nmedia.dto.Post
@@ -16,7 +18,16 @@ import ru.netology.nmedia.service.PostService
 @SpringBootApplication
 class NMediaApplication {
     @Bean
-    fun runner(postService: PostService, commentService: CommentService) = CommandLineRunner {
+    fun runner(
+        postService: PostService,
+        commentService: CommentService,
+        @Value("\${app.media-location}") mediaLocation: String,
+    ) = CommandLineRunner {
+        ResourceUtils.getFile("classpath:static").copyRecursively(
+            ResourceUtils.getFile(mediaLocation),
+            true,
+        )
+
         val firstPost = postService.saveInitial(
             Post(
                 id = 0,

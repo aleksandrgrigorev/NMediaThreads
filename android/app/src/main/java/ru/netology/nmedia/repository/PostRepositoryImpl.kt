@@ -38,8 +38,8 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun showPosts() {
-        dao.showPosts()
+    override suspend fun showNewPosts() {
+        dao.showNewPosts()
     }
 
     override fun getNewerCount(id: Long): Flow<Int> = flow {

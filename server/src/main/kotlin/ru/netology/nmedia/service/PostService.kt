@@ -72,13 +72,13 @@ class PostService(
         .toDto()
 
     fun saveInitial(dto: Post) = PostEntity.fromDto(
-        dto.copy(
-            likes = 0,
-            likedByMe = false,
-            published = OffsetDateTime.now().toEpochSecond()
-        )
-    ).let {
-        repository.save(it)
-    }.toDto()
+                dto.copy(
+                    likes = 0,
+                    likedByMe = false,
+                    published = OffsetDateTime.now().toEpochSecond()
+                )
+            ).let {
+            repository.save(it)
+        }.toDto()
 
 }
