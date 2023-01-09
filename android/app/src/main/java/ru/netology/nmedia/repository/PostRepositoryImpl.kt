@@ -3,8 +3,13 @@ package ru.netology.nmedia.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.AttachmentType
+import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
@@ -13,6 +18,7 @@ import ru.netology.nmedia.error.ApiException
 import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
+import java.io.File
 import java.io.IOException
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
@@ -115,6 +121,38 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             }
             val body = response.body() ?: throw ApiException(response.code(), response.message())
             dao.insert(PostEntity.fromDto(body))
+        } catch (e: IOException) {
+            throw NetworkException
+        } catch (e: Exception) {
+            throw UnknownException
+        }
+    }
+
+    private suspend fun upload(file: File): Media {
+        try {
+            val data = MultipartBody.Part.createFormData(
+                "file", file.name, file.asRequestBody()
+            )
+
+            val response = PostsApi.retrofitService.upload(data)
+            if (!response.isSuccessful) {
+                throw ApiException(response.code(), response.message())
+            }
+
+            return response.body() ?: throw ApiException(response.code(), response.message())
+        } catch (e: IOException) {
+            throw NetworkException
+        } catch (e: Exception) {
+            throw UnknownException
+        }
+    }
+
+    override suspend fun saveWithAttachment(post: Post, file: File) {
+        try {
+            val upload = upload(file)
+            val postWithAttachment =
+                post.copy(attachment = Attachment(upload.id, "attachment", AttachmentType.IMAGE))
+            save(postWithAttachment)
         } catch (e: IOException) {
             throw NetworkException
         } catch (e: Exception) {

@@ -1,5 +1,8 @@
 package ru.netology.nmedia.dto
 
+import android.net.Uri
+import java.io.File
+
 data class Post(
     val id: Long,
     val author: String,
@@ -10,6 +13,10 @@ data class Post(
     val likes: Int = 0,
     val attachment: Attachment?,
 )
+
+data class PhotoModel(val uri: Uri?, val file: File?)
+
+data class Media(val id: String)
 
 data class Attachment(
     val url: String,
