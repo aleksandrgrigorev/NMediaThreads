@@ -95,10 +95,6 @@ class PostViewHolder(
                     .timeout(10_000)
                     .into(binding.attachment)
                 attachment.visibility = View.VISIBLE
-
-//                binding.attachment.setOnClickListener {
-//                    findNavController().navigate(R.id.action_feedFragment_to_photoAttachment)
-//                }
             }
         }
     }

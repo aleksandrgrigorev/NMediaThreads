@@ -12,9 +12,10 @@ data class Post(
     val likedByMe: Boolean,
     val likes: Int = 0,
     val attachment: Attachment?,
+    val show: Boolean = true,
 )
 
-data class PhotoModel(val uri: Uri?, val file: File?)
+data class PhotoModel(val uri: Uri? = null, val file: File? = null)
 
 data class Media(val id: String)
 

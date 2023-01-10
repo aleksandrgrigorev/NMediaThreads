@@ -41,6 +41,8 @@ class NewPostFragment : Fragment() {
         arguments?.textArg
             ?.let(binding.edit::setText)
 
+        binding.edit.requestFocus()
+
         val contract =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 when (it.resultCode) {
@@ -50,7 +52,6 @@ class NewPostFragment : Fragment() {
                         Snackbar.LENGTH_LONG
                     ).show()
                     Activity.RESULT_OK -> {
-                        //Image Uri will not be null for RESULT_OK
                         val fileUri = it.data?.data
                         viewModel.changePhoto(fileUri, fileUri?.toFile())
                     }
@@ -60,11 +61,6 @@ class NewPostFragment : Fragment() {
         viewModel.photo.observe(viewLifecycleOwner) {
             binding.photo.setImageURI(it.uri)
             binding.photoContainer.isVisible = it.uri != null
-        }
-
-        viewModel.postCreated.observe(viewLifecycleOwner) {
-            viewModel.loadPosts()
-            findNavController().navigateUp()
         }
 
         binding.pickPhoto.setOnClickListener {
@@ -104,6 +100,11 @@ class NewPostFragment : Fragment() {
                 }
             }
         }, viewLifecycleOwner)
+
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.loadPosts()
+            findNavController().navigateUp()
+        }
 
         viewModel.error.observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()

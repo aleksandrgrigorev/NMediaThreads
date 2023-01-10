@@ -44,10 +44,6 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun showNewPosts() {
-        dao.showNewPosts()
-    }
-
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000)
@@ -62,6 +58,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
         .catch { e -> throw AppError.from(e) }
         .flowOn(Dispatchers.Default)
+
+    override suspend fun showNewPosts() {
+        dao.showNewPosts()
+    }
 
     override suspend fun removeById(id: Long) {
         try {
@@ -133,12 +133,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             val data = MultipartBody.Part.createFormData(
                 "file", file.name, file.asRequestBody()
             )
-
             val response = PostsApi.retrofitService.upload(data)
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
-
             return response.body() ?: throw ApiException(response.code(), response.message())
         } catch (e: IOException) {
             throw NetworkException
