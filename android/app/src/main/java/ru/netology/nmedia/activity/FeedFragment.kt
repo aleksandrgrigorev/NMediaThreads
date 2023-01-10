@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -16,6 +17,7 @@ import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -63,7 +65,19 @@ class FeedFragment : Fragment() {
                     Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
             }
+
+            override fun onAttachment(post: Post) {
+//                val imageIntent = Intent().apply {
+//                    action = Intent.
+//                    putExtra("image", image)
+//                    type = "image"
+//                }
+//
+//                startActivity(imageIntent)
+                findNavController().navigate(R.id.action_feedFragment_to_attachmentFragment)
+            }
         })
+
         binding.list.adapter = adapter
 
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {

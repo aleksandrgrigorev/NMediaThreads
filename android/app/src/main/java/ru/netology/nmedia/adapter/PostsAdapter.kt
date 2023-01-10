@@ -18,6 +18,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
+    fun onAttachment(post: Post) {}
 }
 
 class PostsAdapter(
@@ -95,6 +96,10 @@ class PostViewHolder(
                     .timeout(10_000)
                     .into(binding.attachment)
                 attachment.visibility = View.VISIBLE
+
+                binding.attachment.setOnClickListener {
+                    onInteractionListener.onAttachment(post)
+                }
             }
         }
     }
