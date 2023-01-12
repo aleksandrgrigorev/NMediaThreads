@@ -90,6 +90,7 @@ class PostViewHolder(
             } else {
                 val attachmentUrl = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
                 val attachmentUrlNew = "${BuildConfig.BASE_URL}/media/${post.attachment.url}"
+
                 Glide.with(binding.attachment)
                     .load(attachmentUrl)
                     .load(attachmentUrlNew)
