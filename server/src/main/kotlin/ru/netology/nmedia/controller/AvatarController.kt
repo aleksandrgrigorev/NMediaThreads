@@ -9,9 +9,9 @@ import org.springframework.web.multipart.MultipartFile
 import ru.netology.nmedia.service.MediaService
 
 @RestController
-@RequestMapping("/api/media", "/api/slow/media")
-class MediaController(private val service: MediaService) {
+@RequestMapping("/api/avatars", "/api/slow/avatars")
+class AvatarController(private val service: MediaService) {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    fun save(@RequestParam file: MultipartFile) = service.saveMedia(file)
+    fun save(@RequestParam file: MultipartFile) = service.saveAvatar(file)
 }

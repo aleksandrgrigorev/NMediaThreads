@@ -8,27 +8,35 @@ import jakarta.persistence.*
 @Entity
 data class PostEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long,
-    var author: String,
-    var authorAvatar: String,
+    @ManyToOne
+    var author: UserEntity,
     @Column(columnDefinition = "TEXT")
     var content: String,
     var published: Long,
-    var likedByMe: Boolean,
-    var likes: Int = 0,
+    @ElementCollection
+    var likeOwnerIds: MutableSet<Long> = mutableSetOf(),
     @Embedded
     var attachment: AttachmentEmbeddable?,
 ) {
-    fun toDto() = Post(id, author, authorAvatar, content, published, likedByMe, likes, attachment?.toDto())
+    fun toDto(myId: Long) = Post(
+        id,
+        author.id,
+        author.name,
+        author.avatar,
+        content,
+        published,
+        likeOwnerIds.contains(myId),
+        likeOwnerIds.size,
+        attachment?.toDto()
+    )
 
     companion object {
         fun fromDto(dto: Post) = PostEntity(
             dto.id,
-            dto.author,
-            dto.authorAvatar,
+            UserEntity(dto.authorId),
             dto.content,
             dto.published,
-            dto.likedByMe,
-            dto.likes,
+            mutableSetOf(),
             AttachmentEmbeddable.fromDto(dto.attachment),
         )
     }
