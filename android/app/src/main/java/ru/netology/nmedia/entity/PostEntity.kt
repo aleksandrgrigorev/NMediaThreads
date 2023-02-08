@@ -20,9 +20,10 @@ data class PostEntity(
     @Embedded
     val attachment: AttachmentEntity?,
     val show: Boolean = true,
+    val authorId: Long = 0,
 ) {
     fun toDto() =
-        Post(id, author, authorAvatar, content, published, likedByMe, likes, attachment?.toDto())
+        Post(id, author, authorAvatar, content, published, likedByMe, likes, attachment?.toDto(), authorId = authorId)
 
     companion object {
         fun fromDto(dto: Post) =
@@ -35,6 +36,7 @@ data class PostEntity(
                 dto.likedByMe,
                 dto.likes,
                 AttachmentEntity.fromDto(dto.attachment),
+                authorId = dto.authorId
             )
     }
 }

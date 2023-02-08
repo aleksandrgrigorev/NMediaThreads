@@ -2,12 +2,12 @@ package ru.netology.nmedia.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -15,8 +15,10 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -123,6 +125,43 @@ class FeedFragment : Fragment() {
 
         viewModel.error.observe(viewLifecycleOwner) {
             Snackbar.make(requireView(), it.message as CharSequence, Snackbar.LENGTH_LONG).show()
+        }
+
+        val authViewModel: AuthViewModel by viewModels()
+        var menuProvider: MenuProvider? = null
+        authViewModel.state.observe(viewLifecycleOwner) {
+            menuProvider?.let { requireActivity()::removeMenuProvider }
+            requireActivity().addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_auth, menu)
+
+                    menu.setGroupVisible(R.id.authorized, authViewModel.authorized)
+                    menu.setGroupVisible(R.id.unauthorized, !authViewModel.authorized)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    when (menuItem.itemId) {
+                        R.id.logout -> {
+                            //TODO in HW
+                            AppAuth.getInstance().removeAuth()
+                            true
+                        }
+                        R.id.signIn -> {
+                            //TODO in HW
+                            AppAuth.getInstance().setAuth(5, "x-token")
+                            true
+                        }
+                        R.id.signUp -> {
+                            //TODO in HW
+                            AppAuth.getInstance().setAuth(5, "x-token")
+                            true
+                        }
+                        else -> false
+                    }
+
+            }.apply {
+                menuProvider = this
+            }, viewLifecycleOwner)
         }
 
         return binding.root
