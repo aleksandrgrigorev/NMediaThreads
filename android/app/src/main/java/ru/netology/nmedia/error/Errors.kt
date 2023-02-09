@@ -14,7 +14,7 @@ sealed class AppError(val code: Int, val info: String) : RuntimeException(info) 
     }
 }
 
-class ApiException(code : Int, message: String) : AppError(code, message)
+class ApiException(code: Int, message: String) : AppError(code, message)
 
 object DbException: AppError(-1, "error_db")
 object NetworkException: AppError(-1, "no_network")

@@ -128,9 +128,13 @@ class FeedFragment : Fragment() {
         }
 
         val authViewModel: AuthViewModel by viewModels()
+
         var menuProvider: MenuProvider? = null
+
         authViewModel.state.observe(viewLifecycleOwner) {
+
             menuProvider?.let { requireActivity()::removeMenuProvider }
+
             requireActivity().addMenuProvider(object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     menuInflater.inflate(R.menu.menu_auth, menu)
@@ -142,13 +146,11 @@ class FeedFragment : Fragment() {
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
                     when (menuItem.itemId) {
                         R.id.logout -> {
-                            //TODO in HW
                             AppAuth.getInstance().removeAuth()
                             true
                         }
                         R.id.signIn -> {
-                            //TODO in HW
-                            AppAuth.getInstance().setAuth(5, "x-token")
+                            SignInFragment().show(childFragmentManager, "authDialog")
                             true
                         }
                         R.id.signUp -> {

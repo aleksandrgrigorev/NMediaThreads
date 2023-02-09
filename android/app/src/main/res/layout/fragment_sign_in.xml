@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.SignInFragment"
+    android:padding="@dimen/common_spacing">
+
+    <EditText
+        android:id="@+id/edit_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/username"
+        android:gravity="center"
+        />
+
+    <EditText
+        android:id="@+id/edit_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:layout_below="@id/edit_username"
+        android:gravity="center"
+        />
+
+    <Button
+        android:id="@+id/authorize_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/authorize"
+        android:layout_below="@id/edit_password" />
+
+</RelativeLayout>

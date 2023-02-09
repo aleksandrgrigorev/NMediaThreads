@@ -27,4 +27,8 @@
     <string name="remove">Удалить</string>
     <string name="description_select_photo">Выбрать фото</string>
     <string name="description_take_photo">Сделать фото</string>
+    <string name="username">имя пользователя</string>
+    <string name="password">пароль</string>
+    <string name="authorize">войти</string>
+    <string name="error_auth">Введите имя пользователя и пароль</string>
 </resources>

@@ -4,8 +4,14 @@ import android.content.Context
 import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.error.NetworkException
+import ru.netology.nmedia.error.UnknownException
+import ru.netology.nmedia.error.ApiException
+import java.io.IOException
 
 class AppAuth private constructor(context: Context) {
+
     companion object {
         private const val TOKEN_KEY = "TOKEN_KEY"
         private const val ID_KEY = "ID_KEY"
@@ -51,5 +57,21 @@ class AppAuth private constructor(context: Context) {
     fun removeAuth() {
         prefs.edit { clear() }
         _state.value = null
+    }
+
+    suspend fun update(login: String, password: String) {
+        try {
+            val response = PostsApi.retrofitService.updateUser(login, password)
+            if (!response.isSuccessful) {
+                throw ApiException(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiException(response.code(), response.message())
+            setAuth(body.id, body.token)
+        } catch (e: IOException) {
+            throw NetworkException
+        } catch (e: Exception) {
+            println(e)
+            throw UnknownException
+        }
     }
 }
