@@ -29,5 +29,7 @@
     <string name="username">username</string>
     <string name="password">password</string>
     <string name="authorize">enter</string>
-    <string name="error_auth">Enter username and password</string>
+    <string name="error_blank_username">Enter username</string>
+    <string name="error_blank_password">Enter password</string>
+    <string name="error_blank_auth">Enter username and password</string>
 </resources>

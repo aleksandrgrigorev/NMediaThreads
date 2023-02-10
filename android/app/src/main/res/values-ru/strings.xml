@@ -30,5 +30,7 @@
     <string name="username">имя пользователя</string>
     <string name="password">пароль</string>
     <string name="authorize">войти</string>
-    <string name="error_auth">Введите имя пользователя и пароль</string>
+    <string name="error_blank_username">Введите имя пользователя</string>
+    <string name="error_blank_password">Введите пароль</string>
+    <string name="error_blank_auth">Введите имя пользователя и пароль</string>
 </resources>

@@ -160,7 +160,6 @@ class FeedFragment : Fragment() {
                         }
                         else -> false
                     }
-
             }.apply {
                 menuProvider = this
             }, viewLifecycleOwner)

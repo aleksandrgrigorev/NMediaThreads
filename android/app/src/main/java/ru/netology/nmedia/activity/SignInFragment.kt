@@ -14,7 +14,7 @@ import ru.netology.nmedia.viewmodel.AuthViewModel
 
 class SignInFragment : DialogFragment() {
 
-    val authViewModel: AuthViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -23,18 +23,22 @@ class SignInFragment : DialogFragment() {
     ): View {
         val binding = FragmentSignInBinding.inflate(inflater, container, false)
 
-        binding.authorizeButton.setOnClickListener {
-            if (binding.editUsername.text.isNotBlank() && binding.editPassword.text.isNotBlank()) {
-                authViewModel.updateUser(
-                    binding.editUsername.toString(),
-                    binding.editPassword.toString()
-                )
-            } else {
-                Toast.makeText(context, R.string.error_auth, Toast.LENGTH_LONG).show()
+        authViewModel.dataState.observe(viewLifecycleOwner) {
+            binding.authorizeButton.setOnClickListener {
+                if (binding.editUsername.text.isBlank() && binding.editPassword.text.isBlank()) {
+                    Toast.makeText(context, R.string.error_blank_auth, Toast.LENGTH_LONG).show()
+                } else if (binding.editUsername.text.isBlank()) {
+                    Toast.makeText(context, R.string.error_blank_username, Toast.LENGTH_LONG).show()
+                } else if (binding.editPassword.text.isBlank()) {
+                    Toast.makeText(context, R.string.error_blank_password, Toast.LENGTH_LONG).show()
+                } else {
+                    authViewModel.updateUser(
+                        binding.editUsername.text.toString(),
+                        binding.editPassword.text.toString()
+                    )
+                }
             }
-        }
 
-        authViewModel.state.observe(viewLifecycleOwner) {
             if (authViewModel.authorized) {
                 findNavController().navigateUp()
             }
