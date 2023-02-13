@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import okhttp3.internal.wait
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
@@ -23,24 +24,31 @@ class SignInFragment : DialogFragment() {
     ): View {
         val binding = FragmentSignInBinding.inflate(inflater, container, false)
 
-        authViewModel.dataState.observe(viewLifecycleOwner) {
+        authViewModel.error.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+        }
+
+        authViewModel.state.observe(viewLifecycleOwner) {
             binding.authorizeButton.setOnClickListener {
-                if (binding.editUsername.text.isBlank() && binding.editPassword.text.isBlank()) {
+                if (binding.login.text.isBlank() && binding.password.text.isBlank()) {
                     Toast.makeText(context, R.string.error_blank_auth, Toast.LENGTH_LONG).show()
-                } else if (binding.editUsername.text.isBlank()) {
+                } else if (binding.login.text.isBlank()) {
                     Toast.makeText(context, R.string.error_blank_username, Toast.LENGTH_LONG).show()
-                } else if (binding.editPassword.text.isBlank()) {
+                } else if (binding.password.text.isBlank()) {
                     Toast.makeText(context, R.string.error_blank_password, Toast.LENGTH_LONG).show()
                 } else {
                     authViewModel.updateUser(
-                        binding.editUsername.text.toString(),
-                        binding.editPassword.text.toString()
+                        binding.login.text.toString(),
+                        binding.password.text.toString()
                     )
-                }
-            }
 
-            if (authViewModel.authorized) {
-                findNavController().navigateUp()
+                    if (authViewModel.authorized) {
+                        findNavController().navigateUp()
+                    } else {
+                        Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
             }
         }
 

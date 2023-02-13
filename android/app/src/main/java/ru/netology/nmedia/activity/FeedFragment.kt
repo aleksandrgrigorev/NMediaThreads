@@ -3,6 +3,7 @@ package ru.netology.nmedia.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -25,6 +26,8 @@ class FeedFragment : Fragment() {
 
     private val viewModel: PostViewModel by activityViewModels()
 
+    val authViewModel: AuthViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,10 +46,14 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                if (post.likedByMe) {
-                    viewModel.unlikeById(post.id)
-                } else {
-                    viewModel.likeById(post.id)
+                when (authViewModel.authorized) {
+                    true -> {
+                        when (post.likedByMe) {
+                            true -> viewModel.unlikeById(post.id)
+                            false -> viewModel.likeById(post.id)
+                        }
+                    }
+                    false -> unauthorizedAccessAttempt()
                 }
             }
 
@@ -103,8 +110,13 @@ class FeedFragment : Fragment() {
             }
         }
 
-        binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+        authViewModel.state.observe(viewLifecycleOwner) {
+            binding.fab.setOnClickListener {
+                when (authViewModel.authorized) {
+                    true -> findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+                    false -> unauthorizedAccessAttempt()
+                }
+            }
         }
 
         viewModel.newerCount.observe(viewLifecycleOwner) {
@@ -126,8 +138,6 @@ class FeedFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) {
             Snackbar.make(requireView(), it.message as CharSequence, Snackbar.LENGTH_LONG).show()
         }
-
-        val authViewModel: AuthViewModel by viewModels()
 
         var menuProvider: MenuProvider? = null
 
@@ -166,5 +176,10 @@ class FeedFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun unauthorizedAccessAttempt() {
+        Toast.makeText(context, R.string.sign_in_to_continue, Toast.LENGTH_LONG).show()
+        SignInFragment().show(childFragmentManager, "authDialog")
     }
 }

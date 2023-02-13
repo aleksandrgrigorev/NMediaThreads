@@ -32,4 +32,9 @@
     <string name="error_blank_username">Enter username</string>
     <string name="error_blank_password">Enter password</string>
     <string name="error_blank_auth">Enter username and password</string>
+    <string name="sign_up">Sign up</string>
+    <string name="login">login</string>
+    <string name="repeat_password">password (repeat)</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="incorrect_credentials">Incorrect login and/or password. Please, try again</string>
 </resources>
