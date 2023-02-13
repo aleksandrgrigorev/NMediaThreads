@@ -3,14 +3,14 @@
     <group android:id="@+id/unauthorized">
         <item
             android:id="@+id/signIn"
-            android:title="Sign In" />
+            android:title="@string/sign_in" />
         <item
             android:id="@+id/signUp"
-            android:title="Sign Up" />
+            android:title="@string/sign_up" />
     </group>
     <group android:id="@+id/authorized">
         <item
             android:id="@+id/logout"
-            android:title="Logout" />
+            android:title="@string/logout" />
     </group>
 </menu>

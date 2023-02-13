@@ -142,37 +142,40 @@ class FeedFragment : Fragment() {
         var menuProvider: MenuProvider? = null
 
         authViewModel.state.observe(viewLifecycleOwner) {
-
             menuProvider?.let { requireActivity()::removeMenuProvider }
+        }
 
-            requireActivity().addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.menu_auth, menu)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_auth, menu)
 
-                    menu.setGroupVisible(R.id.authorized, authViewModel.authorized)
-                    menu.setGroupVisible(R.id.unauthorized, !authViewModel.authorized)
-                }
+                menu.setGroupVisible(R.id.authorized, authViewModel.authorized)
+                menu.setGroupVisible(R.id.unauthorized, !authViewModel.authorized)
+            }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-                    when (menuItem.itemId) {
-                        R.id.logout -> {
-                            AppAuth.getInstance().removeAuth()
-                            true
-                        }
-                        R.id.signIn -> {
-                            SignInFragment().show(childFragmentManager, "authDialog")
-                            true
-                        }
-                        R.id.signUp -> {
-                            //TODO in HW
-                            AppAuth.getInstance().setAuth(5, "x-token")
-                            true
-                        }
-                        else -> false
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                when (menuItem.itemId) {
+                    R.id.logout -> {
+                        AppAuth.getInstance().removeAuth()
+                        true
                     }
-            }.apply {
-                menuProvider = this
-            }, viewLifecycleOwner)
+                    R.id.signIn -> {
+                        SignInFragment().show(childFragmentManager, "authDialog")
+                        true
+                    }
+                    R.id.signUp -> {
+                        //TODO in HW
+                        AppAuth.getInstance().setAuth(5, "x-token")
+                        true
+                    }
+                    else -> false
+                }
+        }.apply {
+            menuProvider = this
+        }, viewLifecycleOwner)
+
+        authViewModel.state.observe(viewLifecycleOwner) {
+            requireActivity().invalidateOptionsMenu()
         }
 
         return binding.root

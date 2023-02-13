@@ -7,11 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
-import okhttp3.internal.wait
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import kotlin.coroutines.EmptyCoroutineContext
 
 class SignInFragment : DialogFragment() {
 
@@ -37,16 +38,20 @@ class SignInFragment : DialogFragment() {
                 } else if (binding.password.text.isBlank()) {
                     Toast.makeText(context, R.string.error_blank_password, Toast.LENGTH_LONG).show()
                 } else {
-                    authViewModel.updateUser(
-                        binding.login.text.toString(),
-                        binding.password.text.toString()
-                    )
+                    with(CoroutineScope(EmptyCoroutineContext)) {
+                        launch {
+                            authViewModel.updateUser(
+                                binding.login.text.toString(),
+                                binding.password.text.toString()
+                            ).join()
 
-                    if (authViewModel.authorized) {
-                        findNavController().navigateUp()
-                    } else {
-                        Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_LONG)
-                            .show()
+                            if (authViewModel.authorized) {
+                                dismiss()
+                            } else {
+                                Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                        }
                     }
                 }
             }

@@ -38,4 +38,8 @@
     <string name="repeat_password">пароль (повторно)</string>
     <string name="sign_in_to_continue">Войдите, чтобы продолжить</string>
     <string name="incorrect_credentials">Неверные логин и/или пароль. Повторите попытку</string>
+    <string name="logout">Выйти</string>
+    <string name="sign_in">Войти</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="cancel">Отмена</string>
 </resources>
