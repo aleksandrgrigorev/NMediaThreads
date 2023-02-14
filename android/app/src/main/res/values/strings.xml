@@ -37,8 +37,10 @@
     <string name="repeat_password">password (repeat)</string>
     <string name="sign_in_to_continue">Sign in to continue</string>
     <string name="incorrect_credentials">Incorrect login and/or password. Please, try again</string>
-    <string name="logout">Log Out</string>
-    <string name="sign_in">Sign In</string>
+    <string name="logout">Log out</string>
+    <string name="sign_in">Sign in</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="cancel">Cancel</string>
+    <string name="error_blank_fields">Fill in all the fields</string>
+    <string name="error_passwords">Enter the same password in both fields</string>
 </resources>

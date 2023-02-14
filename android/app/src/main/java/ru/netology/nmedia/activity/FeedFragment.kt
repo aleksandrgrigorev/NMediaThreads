@@ -164,8 +164,7 @@ class FeedFragment : Fragment() {
                         true
                     }
                     R.id.signUp -> {
-                        //TODO in HW
-                        AppAuth.getInstance().setAuth(5, "x-token")
+                        SignUpFragment().show(childFragmentManager, "signUpDialog")
                         true
                     }
                     else -> false
