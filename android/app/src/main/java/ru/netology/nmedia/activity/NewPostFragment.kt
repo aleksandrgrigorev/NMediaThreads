@@ -1,7 +1,6 @@
 package ru.netology.nmedia.activity
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast

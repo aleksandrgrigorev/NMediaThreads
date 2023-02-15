@@ -69,6 +69,8 @@ class AppAuth private constructor(context: Context) {
             setAuth(body.id, body.token)
         } catch (e: IOException) {
             throw NetworkException
+        } catch (e: ApiException) {
+            throw e
         } catch (e: Exception) {
             println(e)
             throw UnknownException
@@ -85,6 +87,8 @@ class AppAuth private constructor(context: Context) {
             setAuth(newAuth.id,newAuth.token)
         } catch (e: IOException) {
             throw NetworkException
+        } catch (e: ApiException) {
+            throw e
         } catch (e: Exception) {
             throw  UnknownException
         }

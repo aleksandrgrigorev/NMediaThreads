@@ -7,12 +7,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignInBinding
+import ru.netology.nmedia.error.ApiException
 import ru.netology.nmedia.viewmodel.AuthViewModel
-import kotlin.coroutines.EmptyCoroutineContext
 
 class SignInFragment : DialogFragment() {
 
@@ -26,34 +24,30 @@ class SignInFragment : DialogFragment() {
         val binding = FragmentSignInBinding.inflate(inflater, container, false)
 
         authViewModel.error.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+            when (it) {
+                is ApiException -> Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_LONG).show()
+                else -> Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+            }
         }
 
         authViewModel.state.observe(viewLifecycleOwner) {
-            binding.authorizeButton.setOnClickListener {
-                if (binding.login.text.isBlank() && binding.password.text.isBlank()) {
-                    Toast.makeText(context, R.string.error_blank_auth, Toast.LENGTH_LONG).show()
-                } else if (binding.login.text.isBlank()) {
-                    Toast.makeText(context, R.string.error_blank_username, Toast.LENGTH_LONG).show()
-                } else if (binding.password.text.isBlank()) {
-                    Toast.makeText(context, R.string.error_blank_password, Toast.LENGTH_LONG).show()
-                } else {
-                    with(CoroutineScope(EmptyCoroutineContext)) {
-                        launch {
-                            authViewModel.updateUser(
-                                binding.login.text.toString(),
-                                binding.password.text.toString()
-                            ).join()
+            if (it != null) {
+                dismiss()
+            }
+        }
 
-                            if (authViewModel.authorized) {
-                                dismiss()
-                            } else {
-                                Toast.makeText(context, R.string.incorrect_credentials, Toast.LENGTH_LONG)
-                                    .show()
-                            }
-                        }
-                    }
-                }
+        binding.authorizeButton.setOnClickListener {
+            if (binding.login.text.isBlank() && binding.password.text.isBlank()) {
+                Toast.makeText(context, R.string.error_blank_auth, Toast.LENGTH_LONG).show()
+            } else if (binding.login.text.isBlank()) {
+                Toast.makeText(context, R.string.error_blank_username, Toast.LENGTH_LONG).show()
+            } else if (binding.password.text.isBlank()) {
+                Toast.makeText(context, R.string.error_blank_password, Toast.LENGTH_LONG).show()
+            } else {
+                authViewModel.updateUser(
+                    binding.login.text.toString(),
+                    binding.password.text.toString()
+                )
             }
         }
 

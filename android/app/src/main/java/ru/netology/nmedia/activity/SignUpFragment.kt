@@ -7,12 +7,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSignUpBinding
+import ru.netology.nmedia.error.ApiException
 import ru.netology.nmedia.viewmodel.AuthViewModel
-import kotlin.coroutines.EmptyCoroutineContext
 
 class SignUpFragment : DialogFragment() {
 
@@ -25,29 +23,31 @@ class SignUpFragment : DialogFragment() {
     ): View {
         val binding = FragmentSignUpBinding.inflate(inflater, container, false)
 
+        authViewModel.error.observe(viewLifecycleOwner) {
+            when (it) {
+                is ApiException -> Toast.makeText(context, R.string.error_loading, Toast.LENGTH_LONG).show()
+                else -> Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+            }
+        }
+
         authViewModel.state.observe(viewLifecycleOwner) {
-            binding.registerButton.setOnClickListener {
-                if (binding.username.text.isBlank() || binding.login.text.isBlank() ||
-                    binding.password.text.isBlank() || binding.repeatPassword.text.isBlank()) {
-                    Toast.makeText(context, R.string.error_blank_fields, Toast.LENGTH_LONG).show()
-                } else if (binding.password.text.toString() != binding.repeatPassword.text.toString()) {
-                    Toast.makeText(context, R.string.error_passwords, Toast.LENGTH_LONG).show()
-                } else {
-                    with(CoroutineScope(EmptyCoroutineContext)) {
-                        launch {
-                            authViewModel.registerUser(
-                                binding.login.text.toString(),
-                                binding.password.text.toString(),
-                                binding.username.text.toString()
-                            ).join()
+            if (it != null) {
+                dismiss()
+            }
+        }
 
-                            if (authViewModel.authorized) {
-                                dismiss()
-
-                            }
-                        }
-                    }
-                }
+        binding.registerButton.setOnClickListener {
+            if (binding.username.text.isBlank() || binding.login.text.isBlank() ||
+                binding.password.text.isBlank() || binding.repeatPassword.text.isBlank()
+            ) {
+                Toast.makeText(context, R.string.error_blank_fields, Toast.LENGTH_LONG).show()
+            } else if (binding.password.text.toString() != binding.repeatPassword.text.toString()) {
+                Toast.makeText(context, R.string.error_passwords, Toast.LENGTH_LONG).show()
+            } else {
+                authViewModel.registerUser(
+                    binding.login.text.toString(),
+                    binding.password.text.toString(),
+                    binding.username.text.toString())
             }
         }
 

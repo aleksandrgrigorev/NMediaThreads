@@ -24,8 +24,7 @@ class AuthViewModel: ViewModel() {
             try {
                 AppAuth.getInstance().update(login, password)
             } catch (e: Exception) {
-                println(e)
-                throw AppError.from(e)
+                _error.value = e
             }
         }
 
@@ -33,8 +32,7 @@ class AuthViewModel: ViewModel() {
         try {
             AppAuth.getInstance().register(login, password, name)
         } catch (e: Exception) {
-            println(e)
-            throw AppError.from(e)
+            _error.value = e
         }
     }
 }
