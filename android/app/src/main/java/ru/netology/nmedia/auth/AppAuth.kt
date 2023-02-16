@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.error.ApiException
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
-import ru.netology.nmedia.error.ApiException
+import java.io.File
 import java.io.IOException
 
 class AppAuth private constructor(context: Context) {
@@ -77,20 +81,48 @@ class AppAuth private constructor(context: Context) {
         }
     }
 
-    suspend fun register(login: String, password: String, name: String){
+    suspend fun register(login: String, password: String, name: String) {
         try {
             val response = PostsApi.retrofitService.registerUser(login, password, name)
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
             val newAuth = response.body() ?: throw ApiException(response.code(), response.message())
-            setAuth(newAuth.id,newAuth.token)
+            setAuth(newAuth.id, newAuth.token)
         } catch (e: IOException) {
             throw NetworkException
         } catch (e: ApiException) {
             throw e
         } catch (e: Exception) {
-            throw  UnknownException
+            throw UnknownException
+        }
+    }
+
+    suspend fun registerWithPhoto(login: String, password: String, name: String, file: File) {
+        try {
+            val fileData = MultipartBody.Part.createFormData(
+                "file",
+                file.name,
+                file.asRequestBody()
+            )
+            val response = PostsApi.retrofitService.registerWithPhoto(
+                login.toRequestBody(),
+                password.toRequestBody(),
+                name.toRequestBody(),
+                fileData
+            )
+
+            if (!response.isSuccessful) {
+                throw ApiException(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiException(response.code(), response.message())
+            setAuth(body.id, body.token)
+        } catch (e: IOException) {
+            throw NetworkException
+        } catch (e: ApiException) {
+            throw e
+        } catch (e: Exception) {
+            throw UnknownException
         }
     }
 }

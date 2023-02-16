@@ -2,6 +2,7 @@ package ru.netology.nmedia.api
 
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Response
@@ -51,6 +52,15 @@ interface PostsApiService {
         @Field("login") login: String,
         @Field("pass") pass: String,
         @Field("name") name: String
+    ): Response<AuthState>
+
+    @Multipart
+    @POST("users/registration")
+    suspend fun registerWithPhoto(
+        @Part("login") login: RequestBody,
+        @Part("pass") pass: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part media: MultipartBody.Part,
     ): Response<AuthState>
 }
 
