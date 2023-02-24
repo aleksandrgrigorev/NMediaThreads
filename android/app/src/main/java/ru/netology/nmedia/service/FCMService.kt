@@ -53,21 +53,21 @@ class FCMService : FirebaseMessagingService() {
         println(token)
     }
 
-    private fun handleId(userId: Long?, date: MessageOut?) {
+    private fun handleId(userId: Long?, data: MessageOut?) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(
-                date?.message
+                data?.message
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
         when {
-            userId == date?.recipientId || date?.recipientId == null -> NotificationManagerCompat.from(
+            userId == data?.recipientId || data?.recipientId == null -> NotificationManagerCompat.from(
                 this
             ).notify(Random.nextInt(100_000), notification)
 
-            date?.recipientId == 0L || date?.recipientId != 0L || date?.recipientId != userId -> AppAuth.getInstance()
+            data?.recipientId == 0L || data?.recipientId != 0L || data?.recipientId != userId -> AppAuth.getInstance()
                 .sendPushToken()
         }
     }
