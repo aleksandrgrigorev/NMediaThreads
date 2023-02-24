@@ -2,6 +2,7 @@ package ru.netology.nmedia.controller
 
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.service.UserService
 
 @RestController
@@ -17,4 +18,7 @@ class UserController(private val service: UserService) {
 
     @PostMapping("/authentication")
     fun login(@RequestParam login: String, @RequestParam pass: String) = service.login(login, pass)
+
+    @PostMapping("/push-tokens")
+    fun saveToken(@RequestBody pushToken: PushToken) = service.saveToken(pushToken)
 }

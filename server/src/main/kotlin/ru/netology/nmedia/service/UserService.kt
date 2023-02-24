@@ -8,13 +8,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.dto.User
+import ru.netology.nmedia.entity.PushTokenEntity
 import ru.netology.nmedia.entity.TokenEntity
 import ru.netology.nmedia.entity.UserEntity
 import ru.netology.nmedia.exception.NotFoundException
 import ru.netology.nmedia.exception.PasswordNotMatchException
 import ru.netology.nmedia.exception.UserRegisteredException
+import ru.netology.nmedia.extensions.principalOrNull
+import ru.netology.nmedia.repository.PushTokenRepository
 import ru.netology.nmedia.repository.TokenRepository
 import ru.netology.nmedia.repository.UserRepository
 import java.security.SecureRandom
@@ -25,6 +29,7 @@ import java.util.*
 class UserService(
     private val userRepository: UserRepository,
     private val tokenRepository: TokenRepository,
+    private val pushTokenRepository: PushTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val mediaService: MediaService,
 ) : UserDetailsService {
@@ -56,7 +61,7 @@ class UserService(
                 avatar?.id ?: "", // TODO:
             )
         ).let { user ->
-            val token = Token(user.id, generateToken(), user.avatar)
+            val token = Token(user.id, generateToken())
             tokenRepository.save(TokenEntity(token.token, user))
             token
         }
@@ -68,7 +73,7 @@ class UserService(
             if (!passwordEncoder.matches(pass, user.password)) {
                 throw PasswordNotMatchException()
             }
-            val token = Token(user.id, generateToken(), user.avatar)
+            val token = Token(user.id, generateToken())
             tokenRepository.save(TokenEntity(token.token, user))
             token
         } ?: throw NotFoundException()
@@ -97,5 +102,14 @@ class UserService(
         SecureRandom().nextBytes(this)
     }.let {
         Base64.getEncoder().withoutPadding().encodeToString(it)
+    }
+
+    fun saveToken(pushToken: PushToken) {
+        val userId = principalOrNull()?.id ?: 0
+        pushTokenRepository.findByToken(pushToken.token)
+            .orElse(PushTokenEntity(0, pushToken.token, userId))
+            .let {
+                if (it.id == 0L) pushTokenRepository.save(it) else it.userId = userId
+            }
     }
 }

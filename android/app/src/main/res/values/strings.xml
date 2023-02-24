@@ -44,4 +44,5 @@
     <string name="error_blank_fields">Fill in all the fields</string>
     <string name="error_passwords">Enter the same password in both fields</string>
     <string name="upload_avatar">Upload avatar</string>
+    <string name="messageFromServer">A message from server %1$s</string>
 </resources>

@@ -2,12 +2,18 @@ package ru.netology.nmedia.auth
 
 import android.content.Context
 import androidx.core.content.edit
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.error.ApiException
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
@@ -16,23 +22,27 @@ import java.io.IOException
 
 class AppAuth private constructor(context: Context) {
 
-    companion object {
-        private const val TOKEN_KEY = "TOKEN_KEY"
-        private const val ID_KEY = "ID_KEY"
-
-        private var INSTANCE: AppAuth? = null
-
-        fun getInstance(): AppAuth = requireNotNull(INSTANCE) {
-            "init() must be called before getInstance()"
-        }
-
-        fun init(context: Context) {
-            INSTANCE = AppAuth(context)
-        }
-    }
-
+    private val TOKEN_KEY = "TOKEN_KEY"
+    private val ID_KEY = "ID_KEY"
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val _state: MutableStateFlow<AuthState?>
+
+    companion object {
+        @Volatile
+        private var instance: AppAuth? = null
+
+        fun getInstance(): AppAuth = synchronized(this) {
+            instance ?: throw IllegalStateException(
+                "AppAuth is not initialized"
+            )
+        }
+
+        fun init(context: Context): AppAuth = instance ?: synchronized(this) {
+            instance ?: buildAuth(context).also { instance = it }
+        }
+
+        private fun buildAuth(context: Context): AppAuth = AppAuth(context)
+    }
 
     init {
         val token = prefs.getString(TOKEN_KEY, null)
@@ -44,6 +54,7 @@ class AppAuth private constructor(context: Context) {
         } else {
             MutableStateFlow(AuthState(id, token))
         }
+        sendPushToken()
     }
 
     val state = _state.asStateFlow()
@@ -55,17 +66,33 @@ class AppAuth private constructor(context: Context) {
             putString(TOKEN_KEY, token)
         }
         _state.value = AuthState(id, token)
+        sendPushToken()
     }
 
     @Synchronized
     fun removeAuth() {
         prefs.edit { clear() }
         _state.value = null
+        sendPushToken()
+    }
+
+    fun sendPushToken(token: String? = null) {
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                Api.retrofitService.sendPushToken(
+                    PushToken(
+                        token ?: FirebaseMessaging.getInstance().token.await()
+                    )
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     suspend fun update(login: String, password: String) {
         try {
-            val response = PostsApi.retrofitService.updateUser(login, password)
+            val response = Api.retrofitService.updateUser(login, password)
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
@@ -83,7 +110,7 @@ class AppAuth private constructor(context: Context) {
 
     suspend fun register(login: String, password: String, name: String) {
         try {
-            val response = PostsApi.retrofitService.registerUser(login, password, name)
+            val response = Api.retrofitService.registerUser(login, password, name)
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
@@ -105,7 +132,7 @@ class AppAuth private constructor(context: Context) {
                 file.name,
                 file.asRequestBody()
             )
-            val response = PostsApi.retrofitService.registerWithPhoto(
+            val response = Api.retrofitService.registerWithPhoto(
                 login.toRequestBody(),
                 password.toRequestBody(),
                 name.toRequestBody(),
