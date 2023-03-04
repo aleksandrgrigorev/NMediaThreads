@@ -3,6 +3,11 @@ package ru.netology.nmedia.auth
 import android.content.Context
 import androidx.core.content.edit
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,37 +17,25 @@ import kotlinx.coroutines.tasks.await
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.error.ApiException
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppAuth private constructor(context: Context) {
+@Singleton
+class AppAuth @Inject constructor(
+    @ApplicationContext
+    private val context: Context) {
 
     private val TOKEN_KEY = "TOKEN_KEY"
     private val ID_KEY = "ID_KEY"
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val _state: MutableStateFlow<AuthState?>
-
-    companion object {
-        @Volatile
-        private var instance: AppAuth? = null
-
-        fun getInstance(): AppAuth = synchronized(this) {
-            instance ?: throw IllegalStateException(
-                "AppAuth is not initialized"
-            )
-        }
-
-        fun init(context: Context): AppAuth = instance ?: synchronized(this) {
-            instance ?: buildAuth(context).also { instance = it }
-        }
-
-        private fun buildAuth(context: Context): AppAuth = AppAuth(context)
-    }
 
     init {
         val token = prefs.getString(TOKEN_KEY, null)
@@ -76,10 +69,17 @@ class AppAuth private constructor(context: Context) {
         sendPushToken()
     }
 
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface AppAuthEntryPoint {
+        fun getApiService(): ApiService
+    }
+
     fun sendPushToken(token: String? = null) {
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                Api.retrofitService.sendPushToken(
+                val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+                entryPoint.getApiService().sendPushToken(
                     PushToken(
                         token ?: FirebaseMessaging.getInstance().token.await()
                     )
@@ -92,7 +92,8 @@ class AppAuth private constructor(context: Context) {
 
     suspend fun update(login: String, password: String) {
         try {
-            val response = Api.retrofitService.updateUser(login, password)
+            val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+            val response = entryPoint.getApiService().updateUser(login, password)
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
@@ -110,7 +111,8 @@ class AppAuth private constructor(context: Context) {
 
     suspend fun register(login: String, password: String, name: String) {
         try {
-            val response = Api.retrofitService.registerUser(login, password, name)
+            val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+            val response = entryPoint.getApiService().registerUser(login, password, name)
             if (!response.isSuccessful) {
                 throw ApiException(response.code(), response.message())
             }
@@ -132,7 +134,8 @@ class AppAuth private constructor(context: Context) {
                 file.name,
                 file.asRequestBody()
             )
-            val response = Api.retrofitService.registerWithPhoto(
+            val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+            val response = entryPoint.getApiService().registerWithPhoto(
                 login.toRequestBody(),
                 password.toRequestBody(),
                 name.toRequestBody(),
