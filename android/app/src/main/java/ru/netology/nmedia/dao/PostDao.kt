@@ -1,5 +1,6 @@
 package ru.netology.nmedia.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
@@ -13,6 +14,10 @@ import ru.netology.nmedia.entity.PostEntity
 interface PostDao {
     @Query("SELECT * FROM PostEntity WHERE show = 1 ORDER BY id DESC")
     fun getShown(): Flow<List<PostEntity>>
+
+    @Query("SELECT * FROM PostEntity WHERE show = 1 ORDER BY id DESC")
+    fun getPagingSource(): PagingSource<Int, PostEntity>
+
 
     @Query("UPDATE PostEntity SET show = 1 WHERE show = 0")
     fun showNewPosts()
@@ -31,6 +36,9 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
     suspend fun removeById(id: Long)
+
+    @Query("DELETE FROM PostEntity")
+    suspend fun clear()
 }
 
 class Converters {
