@@ -3,8 +3,12 @@ package ru.netology.nmedia.dto
 import android.net.Uri
 import java.io.File
 
+sealed interface FeedItem {
+    val id: Long
+}
+
 data class Post(
-    val id: Long,
+    override val id: Long,
     val author: String,
     val authorAvatar: String,
     val content: String,
@@ -15,7 +19,12 @@ data class Post(
     val show: Boolean = true,
     val ownedByMe: Boolean = false,
     val authorId: Long,
-)
+) : FeedItem
+
+data class Ad(
+    override val id: Long,
+    val image: String,
+) : FeedItem
 
 data class PhotoModel(val uri: Uri? = null, val file: File? = null)
 
